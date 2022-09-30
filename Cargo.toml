@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "tokio-ffi",
+    "tokio-ffi-schema",
+]

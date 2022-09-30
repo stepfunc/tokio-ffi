@@ -1,0 +1,15 @@
+[package]
+name = "tokio-ffi"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "^1", features = ["rt-multi-thread"] }
+tracing = "^0.1"
+lazy_static = "^1"
+num_cpus = "^1"
+
+[build-dependencies]
+oo-bindgen = { git = "https://github.com/stepfunc/oo_bindgen.git", tag = "0.3.0" }
+rust-oo-bindgen = { git = "https://github.com/stepfunc/oo_bindgen.git", tag = "0.3.0" }
+tokio-ffi-schema = { path = "../tokio-ffi-schema" }
