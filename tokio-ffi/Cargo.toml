@@ -10,6 +10,6 @@ lazy_static = "^1"
 num_cpus = "^1"
 
 [build-dependencies]
-oo-bindgen = { git = "https://github.com/stepfunc/oo_bindgen.git", tag = "0.3.0" }
-rust-oo-bindgen = { git = "https://github.com/stepfunc/oo_bindgen.git", tag = "0.3.0" }
+oo-bindgen = { git = "https://github.com/stepfunc/oo_bindgen.git", branch = "main" }
+rust-oo-bindgen = { git = "https://github.com/stepfunc/oo_bindgen.git", branch = "main" }
 tokio-ffi-schema = { path = "../tokio-ffi-schema" }
