@@ -92,7 +92,7 @@ pub fn define(
         .doc("Handle to the underlying runtime")?
         .build()?;
 
-    Ok(runtime.declaration.clone())
+    Ok(runtime.declaration().clone())
 }
 
 fn define_runtime_config(lib: &mut LibraryBuilder) -> BackTraced<FunctionArgStructHandle> {

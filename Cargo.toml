@@ -1,6 +1,6 @@
 [workspace]
 
 members = [
-    "tokio-ffi",
-    "tokio-ffi-schema",
+    "test",
+    "sfio-tokio-ffi",
 ]

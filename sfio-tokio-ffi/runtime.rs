@@ -22,7 +22,7 @@ impl Runtime {
         }
     }
 
-    pub(crate) fn handle(&self) -> RuntimeHandle {
+    pub fn handle(&self) -> RuntimeHandle {
         RuntimeHandle {
             inner: std::sync::Arc::downgrade(&self.inner),
         }

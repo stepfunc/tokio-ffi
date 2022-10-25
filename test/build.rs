@@ -9,7 +9,7 @@ fn main() {
     let mut file =
         std::fs::File::create(Path::new(&env::var_os("OUT_DIR").unwrap()).join("runtime.rs"))
             .unwrap();
-    file.write_all(tokio_ffi_schema::get_impl_file().as_bytes())
+    file.write_all(sfio_tokio_ffi::get_impl_file().as_bytes())
         .unwrap();
 
     let settings = LibrarySettings::create(
@@ -60,9 +60,9 @@ fn main() {
         .build()
         .unwrap();
 
-    tokio_ffi_schema::define(&mut builder, error_type).unwrap();
+    sfio_tokio_ffi::define(&mut builder, error_type).unwrap();
 
     let lib = builder.build().unwrap();
 
-    rust_oo_bindgen::RustCodegen::new(&lib).generate().unwrap();
+    oo_bindgen::backend::rust::generate_ffi(&lib).unwrap();
 }
