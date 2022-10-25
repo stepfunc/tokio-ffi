@@ -5,7 +5,7 @@ use tokio::runtime::Handle;
 use crate::ffi;
 
 #[derive(Copy, Clone, Debug)]
-pub(crate) enum RuntimeError {
+pub enum RuntimeError {
     RuntimeDestroyed,
     CannotBlockWithinAsync,
     FailedToCreateRuntime,
@@ -30,12 +30,12 @@ impl Runtime {
 }
 
 #[derive(Clone)]
-pub(crate) struct RuntimeHandle {
+pub struct RuntimeHandle {
     inner: std::sync::Weak<tokio::runtime::Runtime>,
 }
 
 impl RuntimeHandle {
-    pub(crate) fn block_on<F: Future>(&self, future: F) -> Result<F::Output, RuntimeError> {
+    pub fn block_on<F: Future>(&self, future: F) -> Result<F::Output, RuntimeError> {
         let inner = self
             .inner
             .upgrade()
@@ -47,7 +47,7 @@ impl RuntimeHandle {
         Ok(inner.block_on(future))
     }
 
-    pub(crate) fn spawn<F>(&self, future: F) -> Result<(), RuntimeError>
+    pub fn spawn<F>(&self, future: F) -> Result<(), RuntimeError>
         where
             F: Future + Send + 'static,
             F::Output: Send + 'static,
