@@ -1,7 +1,12 @@
 [package]
 name = "sfio-tokio-ffi"
+description = "An oo-bindgen model for using Tokio in an FFI environment"
 version = "0.5.0"
 edition = "2021"
+license-file = "../LICENSE"
+readme = "README.md"
+homepage = "https://github.com/stepfunc/tokio-ffi"
+repository = "https://github.com/stepfunc/tokio-ffi"
 
 [dependencies]
 oo-bindgen = "0.6.0"
