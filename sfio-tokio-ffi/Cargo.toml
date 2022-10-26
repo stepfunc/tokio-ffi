@@ -4,7 +4,7 @@ description = "An oo-bindgen model for using Tokio in an FFI environment"
 version = "0.5.0"
 edition = "2021"
 license-file = "../LICENSE"
-readme = "README.md"
+readme = "../README.md"
 homepage = "https://github.com/stepfunc/tokio-ffi"
 repository = "https://github.com/stepfunc/tokio-ffi"
 
