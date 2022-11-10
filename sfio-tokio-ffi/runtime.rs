@@ -80,7 +80,7 @@ pub(crate) unsafe fn runtime_create(
     };
 
     tracing::info!("creating runtime with {} threads", num_threads);
-    let runtime = build_runtime(|r| r.worker_threads(num_threads as usize))
+    let runtime = build_runtime(|r| r.worker_threads(num_threads))
         .map_err(|_| RuntimeError::FailedToCreateRuntime)?;
     Ok(Box::into_raw(Box::new(Runtime::new(runtime))))
 }
