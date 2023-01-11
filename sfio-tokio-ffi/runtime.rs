@@ -1,4 +1,5 @@
 use std::future::Future;
+use std::time::Duration;
 
 use tokio::runtime::Handle;
 
@@ -12,39 +13,44 @@ pub enum RuntimeError {
 }
 
 pub struct Runtime {
-    pub(crate) inner: std::sync::Arc<tokio::runtime::Runtime>,
+    pub(crate) inner: Option<tokio::runtime::Runtime>,
+    pub(crate) shutdown_timeout: Option<Duration>,
 }
 
 impl Runtime {
     fn new(inner: tokio::runtime::Runtime) -> Self {
         Self {
-            inner: std::sync::Arc::new(inner),
+            inner: Some(inner),
+            shutdown_timeout: None,
         }
     }
 
     pub fn handle(&self) -> RuntimeHandle {
         RuntimeHandle {
-            inner: std::sync::Arc::downgrade(&self.inner),
+            inner: self.inner.as_ref().unwrap().handle().clone(),
+        }
+    }
+}
+
+impl Drop for Runtime {
+    fn drop(&mut self) {
+        if let (Some(runtime), Some(timeout)) = (self.inner.take(), self.shutdown_timeout) {
+            runtime.shutdown_timeout(timeout)
         }
     }
 }
 
 #[derive(Clone)]
 pub struct RuntimeHandle {
-    inner: std::sync::Weak<tokio::runtime::Runtime>,
+    inner: Handle,
 }
 
 impl RuntimeHandle {
     pub fn block_on<F: Future>(&self, future: F) -> Result<F::Output, RuntimeError> {
-        let inner = self
-            .inner
-            .upgrade()
-            .ok_or(RuntimeError::RuntimeDestroyed)?;
-
         if Handle::try_current().is_ok() {
             return Err(RuntimeError::CannotBlockWithinAsync);
         }
-        Ok(inner.block_on(future))
+        Ok(self.inner.block_on(future))
     }
 
     pub fn spawn<F>(&self, future: F) -> Result<(), RuntimeError>
@@ -52,12 +58,7 @@ impl RuntimeHandle {
             F: Future + Send + 'static,
             F::Output: Send + 'static,
     {
-        let inner = self
-            .inner
-            .upgrade()
-            .ok_or(RuntimeError::RuntimeDestroyed)?;
-
-        inner.spawn(future);
+        self.inner.spawn(future);
         Ok(())
     }
 }
@@ -89,5 +90,11 @@ pub(crate) unsafe fn runtime_destroy(runtime: *mut crate::runtime::Runtime) {
     if !runtime.is_null() {
         drop(Box::from_raw(runtime));
     };
+}
+
+pub(crate) unsafe fn runtime_set_shutdown_timeout(instance: *mut Runtime, timeout: Duration) {
+    if let Some(rt) = instance.as_mut() {
+        rt.shutdown_timeout = Some(timeout);
+    }
 }
 
