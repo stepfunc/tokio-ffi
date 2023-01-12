@@ -10,5 +10,5 @@ lazy_static = "1"
 num_cpus = "1"
 
 [build-dependencies]
-oo-bindgen = "0.6.0"
+oo-bindgen = "0.7"
 sfio-tokio-ffi = { path = "../sfio-tokio-ffi" }

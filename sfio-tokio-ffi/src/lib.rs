@@ -11,7 +11,6 @@
     patterns_in_fns_without_body,
     pub_use_of_private_extern_crate,
     unknown_crate_types,
-    const_err,
     order_dependent_trait_objects,
     illegal_floating_point_literal_pattern,
     improper_ctypes,
@@ -84,10 +83,21 @@ pub fn define(
                 .details("This method will gracefully wait for all asynchronous operation to end before returning")
         )?;
 
+    let set_shutdown_timeout =
+        lib.define_method("set_shutdown_timeout", runtime.clone())?
+            .doc(
+                    doc("By default, when the runtime shuts down, it does so without a timeout and waits indefinitely for all spawned tasks to yield.")
+                    .details("Setting this value will put a maximum time bound on the eventual shutdown. Threads that have not exited within this timeout will be terminated.")
+                        .warning("This can leak memory. This method should only be used if the the entire application is being shut down so that memory can be cleaned up by the OS.")
+            )?
+            .param("timeout", BasicType::Duration(DurationType::Seconds), "Maximum number of seconds to wait for the runtime to shut down")?
+            .build()?;
+
     let runtime = lib
         .define_class(&runtime)?
         .constructor(constructor)?
         .destructor(destructor)?
+        .method(set_shutdown_timeout)?
         .custom_destroy("shutdown")?
         .doc("Handle to the underlying runtime")?
         .build()?;
