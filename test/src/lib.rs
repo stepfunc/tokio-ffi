@@ -1,5 +1,6 @@
 #[allow(dead_code)]
 pub mod ffi;
+#[allow(dead_code)]
 mod runtime;
 
 pub(crate) use runtime::*;

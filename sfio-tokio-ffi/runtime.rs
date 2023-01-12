@@ -13,8 +13,8 @@ pub enum RuntimeError {
 }
 
 pub struct Runtime {
-    pub(crate) inner: Option<tokio::runtime::Runtime>,
-    pub(crate) shutdown_timeout: Option<Duration>,
+    inner: Option<tokio::runtime::Runtime>,
+    shutdown_timeout: Option<Duration>,
 }
 
 impl Runtime {
@@ -25,35 +25,49 @@ impl Runtime {
         }
     }
 
-    pub fn handle(&self) -> RuntimeHandle {
+    pub(crate) fn handle(&self) -> RuntimeHandle {
         RuntimeHandle {
             inner: self.inner.as_ref().unwrap().handle().clone(),
         }
+    }
+
+    pub(crate) fn enter(&self) -> tokio::runtime::EnterGuard<'_> {
+        self.inner.as_ref().unwrap().enter()
     }
 }
 
 impl Drop for Runtime {
     fn drop(&mut self) {
-        if let (Some(runtime), Some(timeout)) = (self.inner.take(), self.shutdown_timeout) {
-            runtime.shutdown_timeout(timeout)
+        let runtime = self.inner.take().unwrap();
+        match self.shutdown_timeout {
+            Some(timeout) => {
+                tracing::info!("beginning runtime shutdown (timeout == {timeout:?})");
+                runtime.shutdown_timeout(timeout);
+                tracing::info!("runtime shutdown complete");
+            }
+            None => {
+                tracing::info!("beginning runtime shutdown (no timeout)");
+                drop(runtime);
+                tracing::info!("runtime shutdown complete");
+            }
         }
     }
 }
 
 #[derive(Clone)]
-pub struct RuntimeHandle {
+pub(crate) struct RuntimeHandle {
     inner: Handle,
 }
 
 impl RuntimeHandle {
-    pub fn block_on<F: Future>(&self, future: F) -> Result<F::Output, RuntimeError> {
+    pub(crate) fn block_on<F: Future>(&self, future: F) -> Result<F::Output, RuntimeError> {
         if Handle::try_current().is_ok() {
             return Err(RuntimeError::CannotBlockWithinAsync);
         }
         Ok(self.inner.block_on(future))
     }
 
-    pub fn spawn<F>(&self, future: F) -> Result<(), RuntimeError>
+    pub(crate) fn spawn<F>(&self, future: F) -> Result<(), RuntimeError>
         where
             F: Future + Send + 'static,
             F::Output: Send + 'static,
