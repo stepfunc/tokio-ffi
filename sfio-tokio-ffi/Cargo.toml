@@ -9,4 +9,4 @@ homepage = "https://github.com/stepfunc/tokio-ffi"
 repository = "https://github.com/stepfunc/tokio-ffi"
 
 [dependencies]
-oo-bindgen = { git = "https://github.com/stepfunc/oo_bindgen.git", branch = "feature/drop-safe-futures" }
+oo-bindgen = "0.7"
