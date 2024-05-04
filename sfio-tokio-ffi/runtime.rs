@@ -60,6 +60,10 @@ pub(crate) struct RuntimeHandle {
 }
 
 impl RuntimeHandle {
+    pub(crate) fn new(inner: Handle) -> Self {
+        Self { inner }
+    }
+
     pub(crate) fn block_on<F: Future>(&self, future: F) -> Result<F::Output, RuntimeError> {
         if Handle::try_current().is_ok() {
             return Err(RuntimeError::CannotBlockWithinAsync);
